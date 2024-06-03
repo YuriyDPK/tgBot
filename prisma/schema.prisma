@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  clicks    Int      @default(0) // Используем для обозначения войск
+  online    Boolean  @default(false)
+
+  initiatedBattles Battle[] @relation("initiatorBattles")
+  targetedBattles  Battle[] @relation("targetBattles")
+  wonBattles       Battle[] @relation("wonBattles")
+}
+
+model Question {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answerA   String
+  answerB   String
+  answerC   String
+  answerD   String
+  correct   String
+}
+
+model Battle {
+  id          Int      @id @default(autoincrement())
+  initiatorId Int
+  targetId    Int
+  winnerId    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  initiator User @relation("initiatorBattles", fields: [initiatorId], references: [id])
+  target    User @relation("targetBattles", fields: [targetId], references: [id])
+  winner    User? @relation("wonBattles", fields: [winnerId], references: [id])
+}

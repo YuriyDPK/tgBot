@@ -33,6 +33,7 @@ model Battle {
   initiatorId Int
   targetId    Int
   winnerId    Int?
+  status      String   @default("pending") // Добавлено поле status
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -40,3 +41,4 @@ model Battle {
   target    User @relation("targetBattles", fields: [targetId], references: [id])
   winner    User? @relation("wonBattles", fields: [winnerId], references: [id])
 }
+

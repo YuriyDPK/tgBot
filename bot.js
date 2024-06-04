@@ -12,7 +12,7 @@ bot.command("start", (ctx) => {
           {
             text: "Открыть игру",
             web_app: {
-              url: `https://f951-2-63-250-130.ngrok-free.app?username=${username}`,
+              url: `https://e630-2-63-250-130.ngrok-free.app?username=${username}`,
             },
           },
         ],

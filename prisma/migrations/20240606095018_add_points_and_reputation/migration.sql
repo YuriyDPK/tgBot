@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `Battle` ADD COLUMN `initiatorPoints` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `targetPoints` INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `reputation` INTEGER NOT NULL DEFAULT 0;

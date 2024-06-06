@@ -3,44 +3,51 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function PATCH(request) {
-  const { initiator, target, winner } = await request.json();
+  const { initiator, target, questionIndex, pointsIncrement } =
+    await request.json();
 
   try {
-    const initiatorUser = await prisma.user.findUnique({
-      where: { username: initiator },
+    const battle = await prisma.battle.findFirst({
+      where: {
+        OR: [
+          { initiator: { username: initiator }, target: { username: target } },
+          { initiator: { username: target }, target: { username: initiator } },
+        ],
+        status: "active",
+      },
+      include: {
+        initiator: true,
+        target: true,
+      },
     });
 
-    const targetUser = await prisma.user.findUnique({
-      where: { username: target },
-    });
-
-    if (!initiatorUser || !targetUser) {
-      return new Response(JSON.stringify({ error: "User not found" }), {
+    if (!battle) {
+      return new Response(JSON.stringify({ error: "Battle not found" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    const winnerUser = winner === initiator ? initiatorUser : targetUser;
+    const isInitiator = battle.initiator.username === initiator;
 
-    await prisma.battle.updateMany({
-      where: {
-        initiatorId: initiatorUser.id,
-        targetId: targetUser.id,
-        status: "active",
-      },
-      data: {
-        winnerId: winnerUser.id,
-        status: "completed",
-      },
-    });
+    if (isInitiator) {
+      await prisma.battle.update({
+        where: { id: battle.id },
+        data: { initiatorPoints: { increment: pointsIncrement } },
+      });
+    } else {
+      await prisma.battle.update({
+        where: { id: battle.id },
+        data: { targetPoints: { increment: pointsIncrement } },
+      });
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify(battle), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error updating battle:", error);
+    console.error("Error updating battle points:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

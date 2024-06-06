@@ -46,10 +46,25 @@ export async function PATCH(request) {
   const { initiator, target, status } = await request.json();
 
   try {
+    const initiatorUser = await prisma.user.findUnique({
+      where: { username: initiator },
+    });
+
+    const targetUser = await prisma.user.findUnique({
+      where: { username: target },
+    });
+
+    if (!initiatorUser || !targetUser) {
+      return new Response(JSON.stringify({ error: "User not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const battle = await prisma.battle.updateMany({
       where: {
-        initiatorId: initiator,
-        targetId: target,
+        initiatorId: initiatorUser.id,
+        targetId: targetUser.id,
         status: "pending",
       },
       data: {
@@ -63,6 +78,38 @@ export async function PATCH(request) {
     });
   } catch (error) {
     console.error("Error updating battle status:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
+
+export async function GET(request) {
+  const { id } = request.query;
+
+  try {
+    const battle = await prisma.battle.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        initiator: true,
+        target: true,
+      },
+    });
+
+    if (!battle) {
+      return new Response(JSON.stringify({ error: "Battle not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify(battle), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error fetching battle:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

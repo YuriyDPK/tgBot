@@ -10,8 +10,9 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
-  clicks    Int      @default(0) // Используем для обозначения войск
+  clicks    Int      @default(0)
   online    Boolean  @default(false)
+  reputation Int     @default(0) // Добавлено поле репутации
 
   initiatedBattles Battle[] @relation("initiatorBattles")
   targetedBattles  Battle[] @relation("targetBattles")
@@ -33,7 +34,9 @@ model Battle {
   initiatorId Int
   targetId    Int
   winnerId    Int?
-  status      String   @default("pending") // Добавлено поле status
+  status      String   @default("pending")
+  initiatorPoints Int  @default(0) // Добавлено поле очков инициатора
+  targetPoints Int    @default(0) // Добавлено поле очков цели
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -41,4 +44,3 @@ model Battle {
   target    User @relation("targetBattles", fields: [targetId], references: [id])
   winner    User? @relation("wonBattles", fields: [winnerId], references: [id])
 }
-

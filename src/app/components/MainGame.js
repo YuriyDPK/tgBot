@@ -113,6 +113,15 @@ const MainGame = ({ initialClicks, initialRep }) => {
       console.error("Error fetching online users:", error);
     }
   };
+  useEffect(() => {
+    fetchOnlineUsers();
+    // Установка интервала для периодической проверки новых данных
+    const interval = setInterval(() => {
+      fetchOnlineUsers();
+    }, 5000); // Проверка каждые 5 секунд
+    // Очистка интервала при размонтировании компонента
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchQuestions = async () => {
     try {
@@ -298,7 +307,7 @@ const MainGame = ({ initialClicks, initialRep }) => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold mb-4">Твоя репутация</h1>
+      <h1 className="text-[1em] font-bold mb-4">Репутация</h1>
       <p className="text-2xl mb-4">
         <span id="click-count">{rep}</span>
       </p>

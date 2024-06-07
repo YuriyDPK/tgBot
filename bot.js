@@ -32,7 +32,7 @@ bot.action("start_game", (ctx) => {
           {
             text: "Открыть игру",
             web_app: {
-              url: `https://1d6e-2-63-250-130.ngrok-free.app?username=${username}`, // Замените на ваш домен
+              url: `https://0bc4-2-63-250-130.ngrok-free.app?username=${username}`, // Замените на ваш домен
             },
           },
         ],
